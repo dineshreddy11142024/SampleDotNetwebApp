@@ -35,6 +35,7 @@ stages:
         targetPath: '$(build.artifactStagingDirectory)'
         artifact: 'drop'
         publishLocation: 'pipeline'
+
 - stage: "devlopmentdeploy" 
   dependsOn: buildstage
   condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
@@ -54,6 +55,7 @@ stages:
             appType: 'webApp'
             WebAppName: 'dev-app-demo'
             packageForLinux: '$(Pipeline.Workspace)/**/*.zip'
+
 - stage: "QAdeploy" 
   dependsOn: "devlopmentdeploy"
   jobs:
@@ -71,7 +73,8 @@ stages:
             azureSubscription: 'azuresrconnection'
             appType: 'webApp'
             WebAppName: 'QA-app-demo'
-            packageForLinux: '$(Pipeline.Workspace)/**/*.zip'            
+            packageForLinux: '$(Pipeline.Workspace)/**/*.zip'          
+
 - stage: "Proddeploy" 
   dependsOn: "QAdeploy"
   jobs:
@@ -89,4 +92,14 @@ stages:
             azureSubscription: 'azuresrconnection'
             appType: 'webApp'
             WebAppName: 'Prod-app-demo'
-            packageForLinux: '$(Pipeline.Workspace)/**/*.zip'             
+            deployToSlotOrASE: true
+            ResourceGroupName: 'demoassignment'
+            SlotName: 'staging'
+            packageForLinux: '$(Pipeline.Workspace)/**/*.zip'
+        - task: AzureAppServiceManage@0
+          inputs:
+            azureSubscription: 'azuresrconnection'
+            Action: 'Swap Slots'
+            WebAppName: 'Prod-app-demo'
+            ResourceGroupName: 'demoassignment'
+            SourceSlot: 'staging'
