@@ -7,7 +7,7 @@ trigger:
 - main
 
 stages:
-- stage: "build"
+- stage: "buildstage"
   jobs:
   - job: "buildjob"
     pool:
@@ -35,3 +35,22 @@ stages:
         targetPath: '$(build.artifactStagingDirectory)'
         artifact: 'drop'
         publishLocation: 'pipeline'
+- stage: "devdeploy" 
+  dependsOn: buildstage
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+  jobs:
+  - deployment:
+    pool:
+     vmImage: 'ubuntu-latest'
+    environment: Development
+    strategy:
+      runOnce:
+       deploy:
+        steps:
+        - task: AzureRmWebAppDeployment@4
+          inputs:
+            ConnectionType: 'AzureRM'
+            azureSubscription: 'azuresrconnection'
+            appType: 'webApp'
+            WebAppName: 'dev-app-demo'
+            packageForLinux: '$(Pipeline.Workspace)/**/*.zip'
