@@ -35,7 +35,7 @@ stages:
         targetPath: '$(build.artifactStagingDirectory)'
         artifact: 'drop'
         publishLocation: 'pipeline'
-- stage: "devdeploy" 
+- stage: "devlopmentdeploy" 
   dependsOn: buildstage
   condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
   jobs:
@@ -54,3 +54,39 @@ stages:
             appType: 'webApp'
             WebAppName: 'dev-app-demo'
             packageForLinux: '$(Pipeline.Workspace)/**/*.zip'
+- stage: "QAdeploy" 
+  dependsOn: "devlopmentdeploy"
+  jobs:
+  - deployment:
+    pool:
+     vmImage: 'ubuntu-latest'
+    environment: QA
+    strategy:
+      runOnce:
+       deploy:
+        steps:
+        - task: AzureRmWebAppDeployment@4
+          inputs:
+            ConnectionType: 'AzureRM'
+            azureSubscription: 'azuresrconnection'
+            appType: 'webApp'
+            WebAppName: 'QA-app-demo'
+            packageForLinux: '$(Pipeline.Workspace)/**/*.zip'            
+- stage: "Proddeploy" 
+  dependsOn: "QAdeploy"
+  jobs:
+  - deployment:
+    pool:
+     vmImage: 'ubuntu-latest'
+    environment: Production
+    strategy:
+      runOnce:
+       deploy:
+        steps:
+        - task: AzureRmWebAppDeployment@4
+          inputs:
+            ConnectionType: 'AzureRM'
+            azureSubscription: 'azuresrconnection'
+            appType: 'webApp'
+            WebAppName: 'Prod-app-demo'
+            packageForLinux: '$(Pipeline.Workspace)/**/*.zip'             
