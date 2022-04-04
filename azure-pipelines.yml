@@ -92,14 +92,4 @@ stages:
             azureSubscription: 'azuresrconnection'
             appType: 'webApp'
             WebAppName: 'Prod-app-demo'
-            deployToSlotOrASE: true
-            ResourceGroupName: 'demoassignment'
-            SlotName: 'staging'
-            packageForLinux: '$(Pipeline.Workspace)/**/*.zip'
-        - task: AzureAppServiceManage@0
-          inputs:
-            azureSubscription: 'azuresrconnection'
-            Action: 'Swap Slots'
-            WebAppName: 'Prod-app-demo'
-            ResourceGroupName: 'demoassignment'
-            SourceSlot: 'staging'
+            packageForLinux: '$(Pipeline.Workspace)/**/*.zip' 
