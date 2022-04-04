@@ -37,7 +37,7 @@ stages:
         publishLocation: 'pipeline'
 
 - stage: "devlopmentdeploy" 
-  dependsOn: buildstage
+  dependsOn: "buildstage"
   condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
   jobs:
   - deployment:
@@ -58,6 +58,7 @@ stages:
 
 - stage: "QAdeploy" 
   dependsOn: "devlopmentdeploy"
+  condition: succeeded()
   jobs:
   - deployment:
     pool:
@@ -77,6 +78,7 @@ stages:
 
 - stage: "Proddeploy" 
   dependsOn: "QAdeploy"
+  condition: succeeded()
   jobs:
   - deployment:
     pool:
