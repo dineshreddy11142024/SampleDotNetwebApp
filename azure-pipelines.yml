@@ -39,7 +39,7 @@ stages:
     
     - task: PublishTestResults@2
       inputs:
-        testResultsFormat: 'JUnit'
+        testResultsFormat: 'NUnit'
         testResultsFiles: '**/TEST-*.xml'
         mergeTestResults: true
   
