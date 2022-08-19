@@ -36,62 +36,10 @@ stages:
         artifact: 'drop'
         publishLocation: 'pipeline'
 
-- stage: "devlopmentdeploy" 
-  dependsOn: "buildstage"
-  condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
-  jobs:
-  - deployment:
-    pool:
-     vmImage: 'ubuntu-latest'
-    environment: Development
-    strategy:
-      runOnce:
-       deploy:
-        steps:
-        - task: AzureRmWebAppDeployment@4
-          inputs:
-            ConnectionType: 'AzureRM'
-            azureSubscription: 'azuresrconnection'
-            appType: 'webApp'
-            WebAppName: 'dev-app-demo'
-            packageForLinux: '$(Pipeline.Workspace)/**/*.zip'
-
-- stage: "QAdeploy" 
-  dependsOn: "devlopmentdeploy"
-  condition: succeeded()
-  jobs:
-  - deployment:
-    pool:
-     vmImage: 'ubuntu-latest'
-    environment: QA
-    strategy:
-      runOnce:
-       deploy:
-        steps:
-        - task: AzureRmWebAppDeployment@4
-          inputs:
-            ConnectionType: 'AzureRM'
-            azureSubscription: 'azuresrconnection'
-            appType: 'webApp'
-            WebAppName: 'QA-app-demo'
-            packageForLinux: '$(Pipeline.Workspace)/**/*.zip'          
-
-- stage: "Proddeploy" 
-  dependsOn: "QAdeploy"
-  condition: succeeded()
-  jobs:
-  - deployment:
-    pool:
-     vmImage: 'ubuntu-latest'
-    environment: Production
-    strategy:
-      runOnce:
-       deploy:
-        steps:
-        - task: AzureRmWebAppDeployment@4
-          inputs:
-            ConnectionType: 'AzureRM'
-            azureSubscription: 'azuresrconnection'
-            appType: 'webApp'
-            WebAppName: 'Prod-app-demo'
-            packageForLinux: '$(Pipeline.Workspace)/**/*.zip' 
+    
+    - task: PublishTestResults@2
+      inputs:
+        testResultsFormat: 'JUnit'
+        testResultsFiles: '**/TEST-*.xml'
+        mergeTestResults: true
+  
